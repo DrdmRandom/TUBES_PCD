@@ -1,0 +1,22 @@
+#Config File 2
+#[server]
+# headless = true
+# enableCORS = true
+# enableXsrfProtection = true
+# port = 8501
+
+#Config File 1
+[server]
+headless = true
+enableCORS = false
+enableXsrfProtection = false
+port = 8501
+
+[theme]
+base = "dark"
+
+[global]
+sharingMode = "off"  # Disable sharing (optional, but aligns with self-hosting)
+
+[ui]
+hideToolbar = true  # This removes the toolbar (including the "Deploy" button)
