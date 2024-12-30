@@ -4,8 +4,11 @@ FROM python:3.10-slim
 # Set direktori kerja di dalam container
 WORKDIR /app
 
-# Salin semua file ke dalam container
+# Copy all files into the container (general copy)
 COPY . .
+
+# Explicitly copy the Dataset directory to ensure it’s included
+COPY Dataset /app/Dataset
 
 # Install dependensi dari requirements.txt
 RUN pip install --no-cache-dir -r requirements.txt
