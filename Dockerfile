@@ -17,4 +17,4 @@ RUN pip install --no-cache-dir -r requirements.txt
 EXPOSE 8501
 
 # Perintah untuk menjalankan aplikasi Streamlit
-CMD ["streamlit", "run", "app.py", "--server.port=8501", "--server.enableCORS=false", "--server.address=0.0.0.0"]
+CMD ["streamlit", "run", "UI_Master.py", "--server.port=8502", "--server.enableCORS=false", "--server.address=0.0.0.0"]
