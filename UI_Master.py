@@ -18,13 +18,11 @@ class_names = sorted(os.listdir(train_dir))  # Get a sorted list of class names
 print("Class Names:", class_names)
 print("Number of Classes:", len(class_names))
 
-
 # Create the model
 def create_model(num_classes):
     model = models.resnet50(weights=None)  # Initialize a ResNet50 model without pretrained weights
     model.fc = nn.Linear(model.fc.in_features, num_classes)  # Modify the final layer for num_classes
     return model
-
 
 # Load the model
 def load_model():
@@ -54,7 +52,6 @@ def load_model():
     model.eval()  # Set model to evaluation mode
     return model
 
-
 # Preprocess the image
 def preprocess_image(image):
     transform = transforms.Compose([
@@ -64,9 +61,8 @@ def preprocess_image(image):
     ])
     return transform(image).unsqueeze(0)  # Add batch dimension
 
-
-# Predict with top-3 results
-def predict_top3(input_tensor, model, class_names):
+# Predict with a confidence threshold of 80%
+def predict_top3(input_tensor, model, class_names, threshold=0.75):
     with torch.no_grad():
         outputs = model(input_tensor)
         probabilities = torch.nn.functional.softmax(outputs[0], dim=0)
@@ -80,10 +76,13 @@ def predict_top3(input_tensor, model, class_names):
     k = min(3, probabilities.size(0))
     top3_prob, top3_indices = torch.topk(probabilities, k)
 
-    # Map indices to class names
-    top3_classes = [class_names[idx] for idx in top3_indices]
-    return list(zip(top3_classes, top3_prob.tolist()))
-
+    # Filter predictions by threshold
+    filtered_predictions = [
+        (class_names[idx], prob.item())
+        for idx, prob in zip(top3_indices, top3_prob)
+        if prob.item() >= threshold
+    ]
+    return filtered_predictions
 
 def main():
     st.title("Fish Species Detector")
@@ -122,12 +121,15 @@ def main():
         if st.button("Detect Fish Species"):
             with st.spinner("Classifying..."):
                 input_tensor = preprocess_image(image)  # Preprocess image
-                predictions = predict_top3(input_tensor, model, class_names)  # Get top-3 predictions
+                predictions = predict_top3(input_tensor, model, class_names)  # Get predictions
 
                 # Display predictions
                 st.subheader("Top Predictions:")
-                for species, confidence in predictions:
-                    st.write(f"- **{species}**: {confidence:.2%}")
+                if predictions:
+                    for species, confidence in predictions:
+                        st.write(f"- **{species}**: {confidence:.2%}")
+                else:
+                    st.write("This Animal is not on our dataset yet")
 
     # Footer
     st.markdown(
@@ -141,7 +143,6 @@ def main():
         """,
         unsafe_allow_html=True,
     )
-
 
 if __name__ == "__main__":
     main()
